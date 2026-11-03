@@ -10,7 +10,8 @@
 > **▶ 새 계획 (2026-10-30)**: 모의매매 프로그램 `FAKE TRADING POWER CHART`를 원본 복제본으로 만들 예정. 기획은 [FAKE_TRADING_기획서.md](FAKE_TRADING_기획서.md), **다음에 할 일(데이터 조사)은 [NEXT_START_HERE.md](NEXT_START_HERE.md)**. 원본은 건드리지 않는다.
 > → **2026-10-31 사용자 말**: 복제본은 이미 만들어 쓰고 있다 (다른 PC 바탕화면의 `FAKE TRADING POWER CHART` 폴더, 이 PC에는 없음). 거기서 먼저 만든 "📥 2년치 받기"를 1.2.0으로 이 앱에 옮겼다. 복제본 폴더·데이터·포트·키 이름은 이 앱과 섞지 않는다.
 > → **2026-11-03 (1.3.0)**: 사용자가 이 폴더(1.2.0 소스)를 복제본 PC로 가져와서, 복제본 0.14.1의 **모의매매 말고 전부**를 옮겼다 (30분봉·봉 색·지표 색·이평 소스·듀얼 이평·가격 그대로 비교·뒤로 밀면 더 받기·2년치 받기 2배·토스 국내 1분봉·리플레이 1분씩/한 칸=봉 하나/봉 바꿔도 이어 감/칸 수 바꿔도 이어 감/🎲). 비교는 1.1.0(복제한 때, 복제본 폴더의 `POWER CHART 이전용.zip`) · 1.2.0 · 복제본 세 쪽으로. 소스를 이 폴더째로 원래 PC에 돌려보내 EXE를 만든다. 복제본에서 모의매매에 붙어 있던 공용 코드(옛날 봉·1분봉·토스 받기)는 `web/core/backfill.js`로 모았다
-> → **2026-11-03 사용자 결정: 소스를 GitHub 공개 저장소로.** PC에는 EXE와 데이터(`%APPDATA%`)만 두고, 고치기는 클라우드 Claude, EXE는 GitHub가 만든다 (`.github/workflows/build.yml`, 태그 `v버전`을 올리면 Releases에). 올리기 전에 실명 경로를 지우고 `.gitignore`에 EXE·zip·db·로그를 더했다. **아직: git 설치·GitHub 계정·첫 올리기·첫 EXE 빌드 확인.** 이 PC의 원조(`바탕화면\POWER CHART AND BACKTEST`)는 아직 1.0.1
+> → **2026-11-03 사용자 결정: 소스를 GitHub 공개 저장소로.** PC에는 EXE와 데이터(`%APPDATA%`)만 두고, 고치기는 클라우드 Claude, EXE는 GitHub가 만든다 (`.github/workflows/build.yml`, 태그 `v버전`을 올리면 Releases에). 올리기 전에 실명 경로를 지우고 `.gitignore`에 EXE·zip·db·로그를 더했다.
+> → 저장소 https://github.com/rlagustn92/power-chart-and-backtest (공개). 커밋 작성자는 GitHub noreply 주소. 첫 빌드(태그 v1.3.0)는 성공, 약 14분 → Releases에 `POWER-CHART-AND-BACKTEST.exe` 8.15MB. **그 EXE를 실제로 켜 본 것은 아직** (복제본 PC의 원조는 1.0.1, 다른 PC의 원조는 1.2.0). gh로 올릴 때 토큰에 `workflow` 권한이 있어야 `.github/workflows`를 올릴 수 있다 (복제본 PC는 2026-11-03에 넣음). Actions 로그에 "Node.js 20 is deprecated" 경고가 있지만 빌드에는 지장 없음
 
 ---
 
