@@ -18,7 +18,9 @@ Tauri 2 Windows EXE: charts (lightweight-charts v5.2.1) + DCA/lump-sum backtest 
 - **Source lives in a public GitHub repo (since 2026-11-03).** The user wants only the EXE and the `%APPDATA%` data on their PCs.
   - Work usually happens in a cloud session (claude.ai/code): change, test, commit, push.
   - Release = version bump + CHANGELOG + push a tag `v<version>`. [.github/workflows/build.yml](.github/workflows/build.yml) builds the EXE on GitHub's Windows runner and attaches `POWER-CHART-AND-BACKTEST.exe` to the Release. The tag must equal the `tauri.conf.json` version or the build stops.
-  - The user updates by closing the app and replacing the EXE with the Release download; data and keys stay.
+  - Since 1.4.0 the app updates itself: it checks GitHub Releases at start and every 12 hours, then downloads, verifies and swaps the EXE, and relaunches. The code is in `src-tauri/src/update.rs` and `web/ui/update.js`. The Release body is the CHANGELOG section for that version, and the app shows it, so write CHANGELOG entries for the user.
+  - Updater safety: the repo is a constant in `update.rs`, and JS passes only a version string. The EXE is used only if its SHA-256 and size match the GitHub asset `digest`. Hosts are limited to `ALLOWED_HOSTS` in `update.rs`. These are Rust-only requests, so they are not in `capabilities/default.json`. The dev server only imitates `update_check`.
+  - Manual fallback: close the app and replace the EXE with the Release download; data and keys stay.
   - Public repo: never commit keys, logs, market data (`*.db`), backups, or personal names or paths. `.gitignore` covers the files.
   - Cloud sessions have no `tools/dev-data`. Open http://localhost:5180/ once so the watchlist daily bars (QQQ, TQQQ, SQQQ, KRW=X) download before running the tests; the backtest tests need them.
 - Local build (only when needed): `cd src-tauri && cargo tauri build --no-bundle`.

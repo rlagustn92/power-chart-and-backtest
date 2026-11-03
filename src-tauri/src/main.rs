@@ -5,6 +5,7 @@ mod alpaca;
 mod alpaca_stream;
 mod db;
 mod toss;
+mod update;
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -405,11 +406,12 @@ fn show_main(app: &AppHandle) {
 }
 
 /// 새 버전으로 바꿀 때 켜져 있던 EXE를 "<이름>.old.exe"로 비켜 두고 새 것을 넣는다 → 다음에 켤 때 지운다
-/// (그 옛 EXE가 아직 켜져 있으면 못 지우고 다음 번에 다시 해 본다)
+/// (그 옛 EXE가 아직 켜져 있으면 못 지우고 다음 번에 다시 해 본다). 🆕 새 버전 받기가 중간에 멈춰 남은 .new.exe도 (update.rs)
 fn remove_old_exe() {
     if let Ok(exe) = std::env::current_exe() {
         if let Some(stem) = exe.file_stem().and_then(|s| s.to_str()) {
             let _ = fs::remove_file(exe.with_file_name(format!("{stem}.old.exe")));
+            let _ = fs::remove_file(exe.with_file_name(format!("{stem}.new.exe")));
         }
     }
 }
@@ -469,7 +471,10 @@ fn main() {
             alpaca_stream::alpaca_stream_set,
             toss::toss_key_status,
             toss::toss_save_key,
-            toss::toss_get
+            toss::toss_get,
+            update::update_check,
+            update::update_install,
+            update::update_restart
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

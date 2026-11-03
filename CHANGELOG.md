@@ -5,18 +5,31 @@
 - 기능을 더하면 가운데: 1.0.1 → 1.1.0
 - 크게 바뀌면 앞자리: 1.x → 2.0.0
 
-**지금 버전 보는 곳**: 창 제목(`POWER CHART AND BACKTEST 1.3.0`), ⚙ 설정 맨 위
+**지금 버전 보는 곳**: 창 제목(`POWER CHART AND BACKTEST 1.4.0`), ⚙ 설정 맨 위
 
 **새 버전을 낼 때 (AI에게도 같은 순서, 2026-11-03부터 GitHub)**
 1. 번호를 올린다: `src-tauri/tauri.conf.json`의 `"version"`, `src-tauri/Cargo.toml`의 `version`, `src-tauri/Cargo.lock`의 `power-chart-and-backtest` 줄
 2. 이 파일 맨 위에 새 버전과 바뀐 것을 쓴다
 3. 시험(`/tests/test.html`)이 모두 맞는지 본다
 4. 올리고(push) 태그 `v버전`(예: `v1.3.0`)도 올린다 → GitHub가 EXE를 만들어 Releases에 `POWER-CHART-AND-BACKTEST.exe`로 올린다 (`.github/workflows/build.yml`, 20분 안팎)
-5. 사용자에게: 앱을 끄고 Releases의 EXE로 바꿔서 켜 달라고 한다 (데이터·키는 그대로)
+5. 사용자 앱이 켤 때·12시간마다 알아서 알리고 받는다 (1.4.0부터, 앱의 "🆕 새 버전"). 급하면 ⚙ 설정 맨 위 "🆕 새 버전 확인"
 
 이 PC에서 직접 만들 때만: `cd src-tauri` → `cargo tauri build --no-bundle` → `release\POWER CHART AND BACKTEST.exe`로 복사 (켜져 있으면 먼저 `POWER CHART AND BACKTEST.old.exe`로 이름을 바꾼다, 다음에 켤 때 프로그램이 알아서 지운다)
 
 ---
+
+## 1.4.0 — 2026-11-03 (🆕 새 버전 받기)
+사용자: "EXE만 받아서 홀라당 실행하고 싶다" → 소스를 GitHub(공개)로 옮긴 뒤, 앱이 스스로 새 버전을 받게 했다
+
+더한 것
+- **🆕 새 버전 받기**: 켜고 20초 뒤·켜 둔 동안 12시간마다 GitHub Releases를 보고, 더 새 버전이 있으면 "🆕 새 버전 1.4.1이 있어요" 알림 → **보기** → 바뀐 것(이 파일의 그 버전 부분)을 보고 **받고 다시 켜기** → 앱이 꺼졌다가 새 버전으로 저절로 다시 켜진다
+  - 차트 데이터·관심종목·그린 것·키는 EXE 밖(`%APPDATA%`, 자격 증명 관리자)에 있어서 그대로
+  - 받은 EXE는 GitHub가 알려 준 확인값(SHA-256)·크기와 같을 때만 쓴다. 묻는 곳은 이 앱 저장소 하나뿐 (`src-tauri/src/update.rs`)
+  - 켜져 있던 EXE는 `.old.exe`로 비켜 두고 다음에 켤 때 지운다 (원래 있던 방식)
+  - ⚙ 설정 맨 위 **🆕 새 버전 확인** (언제든), ⚙ 설정 → 화면 **새 버전 알림** (켜고 끄기, 기본 켬)
+- GitHub가 EXE를 만들 때 Releases 본문에 CHANGELOG의 그 버전 부분을 넣는다 (`.github/workflows/build.yml`)
+
+확인: Rust 시험 13개 (버전 비교·GitHub 주소만 허용 2개 추가), 화면 시험 77개 (2개 추가). 개발 서버에서 "새 버전 확인" → GitHub의 v1.3.0을 읽어 "지금 1.3.0이 최신이에요", 바뀐 것 창·"개발 서버에서는 받을 수 없어요". **실제로 받고 다시 켜지는 것은 1.4.0 다음 버전이 나와야 확인할 수 있다** (1.3.0에는 이 기능이 없어서 1.4.0으로는 손으로 바꾼다)
 
 ## 1.3.0 — 2026-11-03 (복제본 FAKE TRADING POWER CHART 0.14.1에서 모의매매 말고 다 옮김)
 사용자: "fake trading power chart는 엄청 진보했는데 원조는 격차가 있다 → 모의매매 기능 빼고 맞춰 줘". 복제본 PC에서 이 폴더(1.2.0)에 옮기고 1.1.0(복제한 때)과 세 쪽을 비교해서 옮겼다. 💰 모의매매 창·일지·📡 실시간 모의매매·대기선·레버리지는 넣지 않았다

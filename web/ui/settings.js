@@ -27,7 +27,8 @@ export function createSettings(root, app) {
   const body = h("div.set-body");
   const ver = h("span.muted.set-ver");
   appVersion().then((v) => (ver.textContent = `버전 ${v}`));
-  root.replaceChildren(h("div.panel.settings", h("div.pick-head", h("h2", "설정"), ver, h("span.grow"), h("button.primary", { onclick: () => close() }, "닫기")), tabBar, body));
+  const updBtn = h("button", { onclick: () => app.checkUpdate?.(), "data-tip-text": "GitHub에 새 버전이 있는지 봐요\n있으면 바뀐 것을 보고 받고 다시 켤 수 있어요 (데이터는 그대로)" }, "🆕 새 버전 확인");
+  root.replaceChildren(h("div.panel.settings", h("div.pick-head", h("h2", "설정"), ver, updBtn, h("span.grow"), h("button.primary", { onclick: () => close() }, "닫기")), tabBar, body));
   root.addEventListener("pointerdown", (e) => e.target === root && close());
 
   const row = (label, ...ctrl) => h("div.set-row", h("span.set-label", label), ...ctrl);
@@ -39,6 +40,7 @@ export function createSettings(root, app) {
       row("관심종목", toggle(() => cfg.layout.sidebar_visible, (v) => app.setSidebar(v), "보이기"), note("Tab 키로 접고 펴요")),
       row("관심종목 RVOL·갭", toggle(() => cfg.layout.wl_extra ?? true, (v) => ((cfg.layout.wl_extra = v), cfg.save(), app.repaintWatch?.()), "보이기"), note("거래량이 평소의 몇 배인지(RVOL)와 시작 갭 %")),
       row("전체화면", h("button", { onclick: () => app.toggleFullscreen() }, "전체화면 켜기/끄기 (F11)"), note("전체화면으로 끄면 다음에도 그 모니터에 전체화면으로 켜져요")),
+      row("새 버전 알림", toggle(() => cfg.update_notify ?? true, (v) => ((cfg.update_notify = v), cfg.save()), "켜기"), note("켤 때·12시간마다 GitHub에 새 버전이 있는지 보고 알려 줘요 (맨 위 '🆕 새 버전 확인'은 늘 돼요)")),
     ];
   }
 

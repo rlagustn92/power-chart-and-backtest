@@ -147,6 +147,27 @@ def cmd(name, a, raw=None, headers=None):
                 (a["sym"], a["tf"], a["minGap"]),
             ).fetchall()
             return [list(r) for r in rows], False
+    if name == "update_check":
+        # 🆕 새 버전 받기 흉내 (1.4.0): GitHub에 진짜로 물어본다 (Rust update.rs와 같은 저장소·같은 모양). 지금 버전은 tauri.conf.json
+        current = json.loads((ROOT / "src-tauri" / "tauri.conf.json").read_text(encoding="utf-8"))["version"]
+        req = urllib.request.Request("https://api.github.com/repos/rlagustn92/power-chart-and-backtest/releases/latest",
+                                     headers={"Accept": "application/vnd.github+json", "User-Agent": f"power-chart-and-backtest/{current} (devserver)"})
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                j = json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None, False
+            raise
+        asset = next((x for x in j.get("assets", []) if x.get("name") == "POWER-CHART-AND-BACKTEST.exe"), None)
+        if not asset:
+            return None, False
+        version = j["tag_name"].lstrip("v")
+        num = lambda v: tuple(int(x) for x in v.split("."))
+        return {"version": version, "notes": (j.get("body") or "")[:4000], "size": asset["size"], "digest": asset.get("digest"),
+                "current": current, "newer": num(version) > num(current)}, False
+    if name in ("update_install", "update_restart"):
+        raise RuntimeError("개발 서버에서는 안 돼요 (EXE에서만)")
     if name == "backup_list":
         return [], False
     if name in ("backup_create", "backup_restore", "quit_app"):

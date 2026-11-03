@@ -21,6 +21,7 @@ import { createDrawbar } from "./ui/drawbar.js";
 import { createReplay } from "./ui/replay.js";
 import { createAlertPanel } from "./ui/alerts.js";
 import { createBackfill } from "./ui/backfill.js";
+import { createUpdater } from "./ui/update.js";
 import { createAlerts, alertText, IND_NAME } from "./alerts/engine.js";
 import { loadDrawings } from "./drawings/store.js";
 import { toast, ask } from "./ui/dialog.js";
@@ -313,8 +314,14 @@ const indpanel = createIndicatorPanel($("#indpanel"), {
   apply: (list) => grid.setIndicators(list),
 });
 
+// 🆕 새 버전 받기 (1.4.0): 켜고 20초 뒤 한 번 + 켜 둔 동안 12시간마다 GitHub Releases 확인 → 있으면 알림 → 받고 다시 켜기
+const updater = createUpdater({ cfg, beforeRestart: () => cfg.saveNow() });
+setTimeout(() => updater.check(false), 20000);
+setInterval(() => updater.check(false), 12 * 3600e3);
+
 const settings = createSettings($("#settings"), {
   cfg,
+  checkUpdate: () => updater.check(true),
   showWelcome: () => maybeWelcome(welcomeApp, true),
   repaintWatch: () => sidebar.paintAll(),
   data,
@@ -659,4 +666,4 @@ startEventAlerts({ toast, enabled: () => cfg.chart.show_events ?? true });
 const welcomeApp = { cfg, data, grid, openSettings: (t, then) => settings.open(t, then) };
 setTimeout(() => maybeWelcome(welcomeApp), 1500);
 
-window.pc = { cfg, data, grid, alerts, estimator, replay, normalizeInput, marketOf };
+window.pc = { cfg, data, grid, alerts, estimator, replay, updater, normalizeInput, marketOf };

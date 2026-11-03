@@ -47,12 +47,27 @@ jobs:
           name: POWER-CHART-AND-BACKTEST
           path: POWER-CHART-AND-BACKTEST.exe
 
+      # Releases 본문 = CHANGELOG.md의 그 버전 부분 (앱의 "🆕 새 버전" 창이 이것을 보여 준다, 1.4.0)
+      - name: 바뀐 것 뽑기 (CHANGELOG → Releases 본문)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $v = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          $lines = @(Get-Content CHANGELOG.md -Encoding utf8)
+          $start = -1
+          for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i] -match "^## $([regex]::Escape($v))( |$)") { $start = $i; break } }
+          $out = @()
+          if ($start -ge 0) { for ($i = $start; $i -lt $lines.Count; $i++) { if ($i -gt $start -and $lines[$i] -match '^## ') { break }; $out += $lines[$i] } }
+          else { $out += "## $v" }
+          $out += ''
+          $out += '---'
+          $out += '바꾸는 법: 앱의 "🆕 새 버전" 알림 → 받고 다시 켜기 (1.4.0부터). 또는 앱을 끄고 이 EXE를 원래 EXE 자리에 넣어 켜기. 차트 데이터·관심종목·그린 것·키는 그대로 남아요 (%APPDATA%\power-chart-and-backtest).'
+          $out += '서명이 없는 EXE라 브라우저로 받으면 "Windows의 PC 보호"가 뜰 수 있어요 → "추가 정보 → 실행".'
+          Set-Content -Path notes.md -Value $out -Encoding utf8
+
       - name: Releases에 올리기 (태그일 때만)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: POWER-CHART-AND-BACKTEST.exe
-          body: |
-            바뀐 것은 저장소의 CHANGELOG.md를 보세요.
-            바꾸는 법: 앱을 끄고, 이 EXE를 원래 EXE 자리에 넣어 켜면 끝. 차트 데이터·관심종목·그린 것·키는 그대로 남아요 (%APPDATA%\power-chart-and-backtest).
-            서명이 없는 EXE라 "Windows의 PC 보호"가 뜨면 "추가 정보 → 실행".
+          body_path: notes.md

@@ -147,6 +147,15 @@ check("XIRR: 1년 뒤 10% → 10%", xirr([[0, -1000], [365 * day, 1100]]), 0.1, 
   check("바이낸스 요청 무게: 1개 1 · 200개 2 · 1,000개 5 · 1,500개 10", [1, 200, 1000, 1500].map(BN.weightOf), [1, 2, 5, 10]);
 }
 
+// ── 🆕 새 버전 받기 (1.4.0): 버전 비교 · Releases 본문 읽기 좋게 ──
+{
+  const U = await import("../ui/update.js");
+  const n = (a, b) => (U.newer(a, b) ? 1 : 0);
+  check("새 버전 비교: 1.4.0>1.3.0 · 1.10.0>1.9.9 · 2.0.0>1.99.99 · 같으면 아님 · 1.2.9 아님 · 1.4 아님 · 1.4.0-beta 아님 · 개발용 아님", [n("1.4.0", "1.3.0"), n("1.10.0", "1.9.9"), n("2.0.0", "1.99.99"), n("1.3.0", "1.3.0"), n("1.2.9", "1.3.0"), n("1.4", "1.3.0"), n("1.4.0-beta", "1.3.0"), n("1.4.0", "개발용")], [1, 1, 1, 0, 0, 0, 0, 0]);
+  const t = U.notesText("## 1.4.0 — 2026-11-03\r\n더한 것\r\n- **새 버전 받기**: `update.rs`\r\n\r\n\r\n끝");
+  check("바뀐 것 글자: 머리줄·굵게·코드 표시 빼고 빈 줄은 하나만 (1 = 맞음)", t === "1.4.0 — 2026-11-03\n더한 것\n- 새 버전 받기: update.rs\n\n끝" ? 1 : 0, 1);
+}
+
 // ── 수수료·세금 (손계산: 10달러 주식을 101달러씩, 수수료 1% → 매달 정확히 10주, 배당 1달러 중 15% 세금) ──
 {
   const D = (y, m, d) => Date.UTC(y, m - 1, d) / 1000;
@@ -368,7 +377,7 @@ section("상태 줄 — 다음 FOMC·CPI 계산");
 // ── 모든 화면 파일이 문법 오류 없이 읽히는지 (하나라도 깨지면 EXE가 검은 화면에서 멈춘다) ──
 section("파일 읽기 (문법 오류 없는지)");
 {
-  const MODULES = ["alerts/engine", "backtest/engine", "backtest/view", "config", "core/backfill", "core/bars", "core/colors", "core/csv", "core/events", "core/daily", "core/data", "core/db", "core/estimate", "core/intraday", "core/limit", "core/series", "core/session", "core/stocklist", "core/symbols", "core/tz", "drawings/geom", "drawings/layer", "drawings/store", "indicators/calc", "indicators/explain", "indicators/index", "indicators/sentiment", "indicators/triangle", "platform", "sources/alpaca", "sources/binance", "sources/hyperliquid", "sources/reconnect", "sources/sentiment", "sources/status", "sources/toss", "sources/yahoo", "ui/alerts", "ui/backfill", "ui/cell", "ui/dialog", "ui/dom", "ui/drawbar", "ui/format", "ui/goto", "ui/grid", "ui/indpanel", "ui/measure", "ui/menu", "ui/picker", "ui/primitives", "ui/replay", "ui/search", "ui/settings", "ui/sidebar", "ui/statusbar", "ui/tip", "ui/toolbar", "ui/welcome"];
+  const MODULES = ["alerts/engine", "backtest/engine", "backtest/view", "config", "core/backfill", "core/bars", "core/colors", "core/csv", "core/events", "core/daily", "core/data", "core/db", "core/estimate", "core/intraday", "core/limit", "core/series", "core/session", "core/stocklist", "core/symbols", "core/tz", "drawings/geom", "drawings/layer", "drawings/store", "indicators/calc", "indicators/explain", "indicators/index", "indicators/sentiment", "indicators/triangle", "platform", "sources/alpaca", "sources/binance", "sources/hyperliquid", "sources/reconnect", "sources/sentiment", "sources/status", "sources/toss", "sources/yahoo", "ui/alerts", "ui/backfill", "ui/cell", "ui/dialog", "ui/dom", "ui/drawbar", "ui/format", "ui/goto", "ui/grid", "ui/indpanel", "ui/measure", "ui/menu", "ui/picker", "ui/primitives", "ui/replay", "ui/search", "ui/settings", "ui/sidebar", "ui/statusbar", "ui/tip", "ui/toolbar", "ui/update", "ui/welcome"];
   const broken = [];
   for (const m of MODULES) {
     try {

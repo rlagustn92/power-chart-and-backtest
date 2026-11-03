@@ -1,7 +1,7 @@
 # 작업 현황 — 어디까지 했나
 
 **기준일: 2026-11-03 (화요일)** · 이 파일을 고칠 때마다 기준일도 바꾼다.
-**버전 1.3.0** ([CHANGELOG.md](CHANGELOG.md)) · 시험 75개 통과 · 프로그램 `release\POWER CHART AND BACKTEST.exe` (바탕화면 바로가기 `POWER CHART AND BACKTEST`가 이것을 켬)
+**버전 1.4.0** ([CHANGELOG.md](CHANGELOG.md)) · 시험 77개 통과 (Rust 13개) · 프로그램 `release\POWER CHART AND BACKTEST.exe` (바탕화면 바로가기 `POWER CHART AND BACKTEST`가 이것을 켬)
 
 같이 볼 것: 사용법 [README.md](README.md) · 해마다 할 일·경제 자료 출처 [MAINTENANCE.md](MAINTENANCE.md) · 기획 [SPEC.md](SPEC.md) · QA 보고서 [1차](QA_REPORT_2026-10-24.md)·[2차](QA_REPORT_2026-10-25_round2.md)
 
@@ -12,6 +12,7 @@
 > → **2026-11-03 (1.3.0)**: 사용자가 이 폴더(1.2.0 소스)를 복제본 PC로 가져와서, 복제본 0.14.1의 **모의매매 말고 전부**를 옮겼다 (30분봉·봉 색·지표 색·이평 소스·듀얼 이평·가격 그대로 비교·뒤로 밀면 더 받기·2년치 받기 2배·토스 국내 1분봉·리플레이 1분씩/한 칸=봉 하나/봉 바꿔도 이어 감/칸 수 바꿔도 이어 감/🎲). 비교는 1.1.0(복제한 때, 복제본 폴더의 `POWER CHART 이전용.zip`) · 1.2.0 · 복제본 세 쪽으로. 소스를 이 폴더째로 원래 PC에 돌려보내 EXE를 만든다. 복제본에서 모의매매에 붙어 있던 공용 코드(옛날 봉·1분봉·토스 받기)는 `web/core/backfill.js`로 모았다
 > → **2026-11-03 사용자 결정: 소스를 GitHub 공개 저장소로.** PC에는 EXE와 데이터(`%APPDATA%`)만 두고, 고치기는 클라우드 Claude, EXE는 GitHub가 만든다 (`.github/workflows/build.yml`, 태그 `v버전`을 올리면 Releases에). 올리기 전에 실명 경로를 지우고 `.gitignore`에 EXE·zip·db·로그를 더했다.
 > → 저장소 https://github.com/rlagustn92/power-chart-and-backtest (공개). 커밋 작성자는 GitHub noreply 주소. 첫 빌드(태그 v1.3.0)는 성공, 약 14분 → Releases에 `POWER-CHART-AND-BACKTEST.exe` 8.15MB. **그 EXE를 실제로 켜 본 것은 아직** (복제본 PC의 원조는 1.0.1, 다른 PC의 원조는 1.2.0). gh로 올릴 때 토큰에 `workflow` 권한이 있어야 `.github/workflows`를 올릴 수 있다 (복제본 PC는 2026-11-03에 넣음). Actions 로그에 "Node.js 20 is deprecated" 경고가 있지만 빌드에는 지장 없음
+> → **1.4.0 (2026-11-03): 🆕 새 버전 받기** — 앱이 GitHub Releases를 보고 받아서 바꾸고 다시 켠다 (`src-tauri/src/update.rs`, `web/ui/update.js`). 1.3.0 → 1.4.0은 손으로 바꿔야 하고(1.3.0에 기능이 없음), **실제로 받고 다시 켜지는 것은 다음 버전(1.4.1 등)이 나올 때 처음 확인**한다 → "아직 확인 못 한 것" 12번
 
 ---
 
@@ -64,6 +65,7 @@
 8. 두 PC에서 동시에 켜도 알파카 오류 없는지
 9. **📥 2년치 받기를 실제 EXE에서** (1.2.0 → 1.3.0에서 1,000봉 창 3개씩으로 바꿈): BTC 5분봉 차트를 뒤로 밀면 더 받아지고 "📥 2년치 받기" 알림이 한 번 뜨는지, 걸리는 시간. 화면의 "약 1~2분"은 창 하나에 0.3초로 셈(`SEC_PER_WIN`, 복제본 EXE에서 ETH 2년 316창 89초) → EXE에서 많이 다르면 고치기. 개발 서버(2026-11-03): NVDA 무기한선물 상장일까지 5종 봉 10만 봉 33초
 10. **토스 국내 1분봉 받기를 실제 EXE에서** (1.3.0, 토스 키는 EXE에서만): 삼성전자 5분봉을 왼쪽 끝으로 밀면 "📥 토스로 2년 받기" 알림 → 눌러서 4시간봉이 2022년대까지 가는지. Rust 허용 목록에 `adjusted`를 더해서 **EXE를 새로 만들어야** 된다 (안 그러면 토스가 "허용 안 됨"으로 막힘)
+12. **🆕 새 버전 받기를 실제 EXE에서** (1.4.0): 다음 버전을 낼 때 1.4.0 EXE가 켜고 20초 뒤 알림을 띄우는지 → 보기 → 받고 다시 켜기 → 새 버전으로 저절로 다시 켜지는지 (창 제목 버전), `.old.exe`가 다음 실행 때 지워지는지, app.log에 `update installed` 줄. 실패하면 화면에 이유가 나오고 app.log에 `[update] 실패`
 11. **리플레이 1분씩을 실제 EXE에서** (1.3.0): 바이낸스 종목 🎲 → 진행 중인 봉이 1분씩 자라는지, 사흘 지나 받아 둔 끝에 닿으면 "받는 중 … 1분봉 (리플레이)" 뒤 이어 가는지. 미국 주식(알파카 1분봉 최근 12개월)·국내 주식(야후 1분봉 30일)은 그 기간 안에서만 1분씩, 밖은 봉 단위
 
 ---
@@ -103,6 +105,7 @@
 | 📥 차트 봉 2년씩 받기 · 뒤로 밀면 더 받기 · 리플레이 1분봉 받기 · 토스 국내 1분봉 | `web/core/backfill.js` (받기) · `web/ui/backfill.js` (진행 상자·설정 칸·알림) → SPEC §2.9.1 · 연결은 `web/main.js` (fetchOlder·fillMinutes·onOldest·onPrepare) |
 | 리플레이 | `web/ui/replay.js` (줄·🎲·한 칸) · `web/ui/cell.js` (startReplay·replayNextEnd·1분봉 읽기) |
 | 봉 색 한국식·미국식 | `web/core/colors.js` |
+| 🆕 새 버전 받기 | `src-tauri/src/update.rs` (확인·받기·SHA-256·바꿔 넣기·다시 켜기) · `web/ui/update.js` (알림·바뀐 것 창) · EXE 만들기 `.github/workflows/build.yml` |
 | FOMC·CPI·실적·경제 일정 | `web/core/events.js` (→ MAINTENANCE.md) |
 | 백테스트 | `web/backtest/engine.js` · `web/backtest/view.js` |
 | 알림 | `web/alerts/engine.js` · `web/ui/alerts.js` |

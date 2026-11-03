@@ -1,6 +1,6 @@
 [package]
 name = "power-chart-and-backtest"
-version = "1.3.0"
+version = "1.4.0"
 description = "강력 차트 + 적립식 백테스트"
 edition = "2021"
 
@@ -27,6 +27,9 @@ tokio = { version = "1", features = ["time", "sync", "macros"] }
 # 알파카 실시간 체결 (시세 전용 스트림 하나만, alpaca_stream.rs)
 tokio-tungstenite = { version = "0.29", default-features = false, features = ["connect", "rustls-tls-webpki-roots"] }
 futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+# 🆕 새 버전 받기 (update.rs): 받은 EXE가 GitHub가 알려 준 SHA-256과 같은지 확인
+sha2 = "0.10"
+hex = "0.4"
 
 # 실행 파일을 작게 (SPEC §1.1: 15MB 이하)
 [profile.release]
