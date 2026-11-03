@@ -1,58 +1,90 @@
 # EXE 만들기 — GitHub의 윈도우 컴퓨터에서 한다. 빌드 찌꺼기(src-tauri/target, 수 GB)는 거기서만 생기고 끝나면 사라진다.
-# - 태그 v1.3.0처럼 "v + tauri.conf.json 버전"을 올리면: EXE를 만들어 Releases에 POWER-CHART-AND-BACKTEST.exe로 올린다
-# - Actions 탭 → "EXE 만들기" → Run workflow: EXE를 만들어 그 실행 기록의 Artifacts에만 둔다 (Releases에는 안 올림, 시험용)
-# 처음은 20분쯤 (tauri-cli·의존성을 처음 빌드), 그 뒤는 캐시로 더 빠르다
+#
+# 새 버전 내기 = tauri.conf.json 버전을 올려서 main에 올리기(push). 그 버전의 Release가 아직 없으면:
+#   EXE를 만들어 태그 v<버전>과 Releases(POWER-CHART-AND-BACKTEST.exe, 본문 = CHANGELOG의 그 버전 부분)를 만든다.
+#   버전을 안 올린 push(문서·작은 수정)는 빌드하지 않고 바로 끝난다.
+# 빠르게 (2026-11-03, 첫 두 번이 14·18분 걸려서):
+#   - EXE 만드는 도구(tauri-cli)는 npm의 미리 만든 것을 쓴다 (소스에서 빌드하면 5분 넘게). 버전은 이 PC의 cargo tauri와 같게 고정 → tauri 올릴 때 같이
+#   - 빌드는 늘 main에서 → 의존성 캐시가 main에 쌓여 다음 빌드가 꺼내 쓴다 (태그마다 캐시가 따로라 태그 빌드는 늘 처음부터였다)
+#   - 캐시는 7일 동안 안 쓰면 GitHub가 지운다 → 5일마다 꺼내 보기만 하는 가벼운 일(keepalive)로 살려 둔다
+# Actions 탭 → "EXE 만들기" → Run workflow에서 "force"를 켜면: 이미 있는 버전이어도 빌드만 한다 (Releases는 안 건드림, 캐시 채우기·시험용)
+
 name: EXE 만들기
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: ["src-tauri/**", "web/**", ".github/workflows/**"]
   workflow_dispatch:
+    inputs:
+      force:
+        description: "이미 Release가 있는 버전이어도 빌드만 하기 (Releases는 안 건드림)"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "17 3 */5 * *" # 5일마다 캐시 살려 두기
 
 permissions:
-  contents: write # Releases에 EXE 올리기
+  contents: write # Releases·태그 만들기
+
+concurrency:
+  group: exe-build
+  cancel-in-progress: false
 
 jobs:
   build:
+    if: github.event_name != 'schedule'
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-
-      - name: tauri-cli 설치 (캐시에 있으면 건너뜀)
-        run: cargo install tauri-cli --version "^2" --locked
-
-      - name: 태그와 버전이 같은지 (v1.3.0 = tauri.conf.json 1.3.0)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: 이번에 만들 버전 (이미 Release가 있으면 건너뜀)
+        id: v
         shell: pwsh
         run: |
           $v = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
-          if ("v$v" -ne "${{ github.ref_name }}") { throw "태그 ${{ github.ref_name }}와 tauri.conf.json 버전 $v가 달라요" }
+          gh release view "v$v" --repo "${{ github.repository }}" *> $null
+          $released = $LASTEXITCODE -eq 0
+          $force = "${{ inputs.force }}" -eq "true"
+          "version=$v" >> $env:GITHUB_OUTPUT
+          "build=$((-not $released) -or $force)".ToLower() >> $env:GITHUB_OUTPUT
+          "release=$(-not $released)".ToLower() >> $env:GITHUB_OUTPUT
+          if ($released -and -not $force) { "v$v은 이미 Releases에 있어요 → 빌드 안 함 (새 버전을 내려면 tauri.conf.json 버전을 올리기)" }
+          exit 0 # gh가 "없음"으로 끝나면(1) 그 값으로 이 단계가 실패하지 않게
 
-      - name: EXE 만들기
+      - if: steps.v.outputs.build == 'true'
+        uses: dtolnay/rust-toolchain@stable
+
+      - if: steps.v.outputs.build == 'true'
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: exe
+
+      - name: EXE 만들기 (tauri-cli는 npm의 미리 만든 것)
+        if: steps.v.outputs.build == 'true'
         working-directory: src-tauri
-        run: cargo tauri build --no-bundle
+        run: npx --yes @tauri-apps/cli@2.12.4 build --no-bundle
 
       - name: 받기 쉬운 이름으로
+        if: steps.v.outputs.build == 'true'
         shell: pwsh
         run: Copy-Item src-tauri/target/release/power-chart-and-backtest.exe POWER-CHART-AND-BACKTEST.exe
 
-      - uses: actions/upload-artifact@v4
+      - if: steps.v.outputs.build == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          name: POWER-CHART-AND-BACKTEST
+          name: POWER-CHART-AND-BACKTEST-${{ steps.v.outputs.version }}
           path: POWER-CHART-AND-BACKTEST.exe
 
       # Releases 본문 = CHANGELOG.md의 그 버전 부분 (앱의 "🆕 새 버전" 창이 이것을 보여 준다, 1.4.0)
       - name: 바뀐 것 뽑기 (CHANGELOG → Releases 본문)
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.v.outputs.release == 'true'
         shell: pwsh
         run: |
-          $v = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          $v = "${{ steps.v.outputs.version }}"
           $lines = @(Get-Content CHANGELOG.md -Encoding utf8)
           $start = -1
           for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i] -match "^## $([regex]::Escape($v))( |$)") { $start = $i; break } }
@@ -65,9 +97,24 @@ jobs:
           $out += '서명이 없는 EXE라 브라우저로 받으면 "Windows의 PC 보호"가 뜰 수 있어요 → "추가 정보 → 실행".'
           Set-Content -Path notes.md -Value $out -Encoding utf8
 
-      - name: Releases에 올리기 (태그일 때만)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: 태그·Releases 만들기 (그 버전이 처음일 때만)
+        if: steps.v.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.v.outputs.version }}
+          target_commitish: ${{ github.sha }}
           files: POWER-CHART-AND-BACKTEST.exe
           body_path: notes.md
+
+  # 5일마다: 의존성 캐시를 꺼내 보기만 한다 (7일 안 쓰면 GitHub가 지운다 → 다음 빌드가 다시 처음부터가 되지 않게)
+  keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: exe
+          save-if: false

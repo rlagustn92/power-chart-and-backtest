@@ -13,6 +13,7 @@
 > → **2026-11-03 사용자 결정: 소스를 GitHub 공개 저장소로.** PC에는 EXE와 데이터(`%APPDATA%`)만 두고, 고치기는 클라우드 Claude, EXE는 GitHub가 만든다 (`.github/workflows/build.yml`, 태그 `v버전`을 올리면 Releases에). 올리기 전에 실명 경로를 지우고 `.gitignore`에 EXE·zip·db·로그를 더했다.
 > → 저장소 https://github.com/rlagustn92/power-chart-and-backtest (공개). 커밋 작성자는 GitHub noreply 주소. 첫 빌드(태그 v1.3.0)는 성공, 약 14분 → Releases에 `POWER-CHART-AND-BACKTEST.exe` 8.15MB. **그 EXE를 실제로 켜 본 것은 아직** (복제본 PC의 원조는 1.0.1, 다른 PC의 원조는 1.2.0). gh로 올릴 때 토큰에 `workflow` 권한이 있어야 `.github/workflows`를 올릴 수 있다 (복제본 PC는 2026-11-03에 넣음). Actions 로그에 "Node.js 20 is deprecated" 경고가 있지만 빌드에는 지장 없음
 > → **1.4.0 (2026-11-03): 🆕 새 버전 받기** — 앱이 GitHub Releases를 보고 받아서 바꾸고 다시 켠다 (`src-tauri/src/update.rs`, `web/ui/update.js`). 1.3.0 → 1.4.0은 손으로 바꿔야 하고(1.3.0에 기능이 없음), **실제로 받고 다시 켜지는 것은 다음 버전(1.4.1 등)이 나올 때 처음 확인**한다 → "아직 확인 못 한 것" 12번
+> → **빌드 방식 바꿈 (2026-11-03, 1.4.0 뒤)**: 첫 두 빌드가 14·18분(태그마다 캐시가 따로라 늘 처음부터 + tauri-cli를 소스에서 빌드). 이제 **버전을 올려 main에 push하면** GitHub가 태그·Releases까지 만든다(태그 손으로 X). tauri-cli는 npm 미리 만든 것(2.12.4 고정), 캐시는 main에, 5일마다 keepalive. 이 PC 원조는 1.4.0으로 바꿈 (1.3.0은 `.old.exe` → 다음 실행 때 지워짐, 1.0.1은 `(예전)`으로 남김)
 
 ---
 

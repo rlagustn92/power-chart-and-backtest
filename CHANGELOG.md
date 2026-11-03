@@ -11,7 +11,7 @@
 1. 번호를 올린다: `src-tauri/tauri.conf.json`의 `"version"`, `src-tauri/Cargo.toml`의 `version`, `src-tauri/Cargo.lock`의 `power-chart-and-backtest` 줄
 2. 이 파일 맨 위에 새 버전과 바뀐 것을 쓴다
 3. 시험(`/tests/test.html`)이 모두 맞는지 본다
-4. 올리고(push) 태그 `v버전`(예: `v1.3.0`)도 올린다 → GitHub가 EXE를 만들어 Releases에 `POWER-CHART-AND-BACKTEST.exe`로 올린다 (`.github/workflows/build.yml`, 20분 안팎)
+4. main에 올린다(push). 태그는 손으로 올리지 않는다 → GitHub가 "Releases에 아직 없는 버전"을 보고 EXE를 만들어 태그 `v버전`과 Releases(`POWER-CHART-AND-BACKTEST.exe`, 본문 = 이 파일의 그 버전 부분)를 만든다 (`.github/workflows/build.yml`). 버전을 안 올린 push는 빌드하지 않는다
 5. 사용자 앱이 켤 때·12시간마다 알아서 알리고 받는다 (1.4.0부터, 앱의 "🆕 새 버전"). 급하면 ⚙ 설정 맨 위 "🆕 새 버전 확인"
 
 이 PC에서 직접 만들 때만: `cd src-tauri` → `cargo tauri build --no-bundle` → `release\POWER CHART AND BACKTEST.exe`로 복사 (켜져 있으면 먼저 `POWER CHART AND BACKTEST.old.exe`로 이름을 바꾼다, 다음에 켤 때 프로그램이 알아서 지운다)
